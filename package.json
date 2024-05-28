@@ -4,7 +4,8 @@
   "description": "Viscio api service",
   "main": "./src/app.ts",
   "scripts": {
-    "start:dev": "ts-node-dev --respawn --transpile-only ./src/app"
+    "start:dev": "ts-node-dev --respawn --transpile-only ./src/app",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "phoenix",
