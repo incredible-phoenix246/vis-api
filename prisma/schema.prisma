@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id            Int        @id @default(autoincrement())
+  fullName      String
+  email         String     @unique
+  otp           String?
+  otpExpires    DateTime?
+  createdAt     DateTime?  @default(now())
+  updatedAt     DateTime   @updatedAt
+  password      String?
+  referralCode  String?    @unique
+  referredById  Int?
+  referredBy    User?      @relation("UserReferredBy", fields: [referredById], references: [id])
+  referrals     User[]     @relation("UserReferredBy")
+  referralsMade Referral[]
+
+  @@map("User")
+}
+
+model Referral {
+  id     Int    @id @default(autoincrement())
+  code   String @unique
+  userId Int
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@map("Referral")
+}

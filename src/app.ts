@@ -5,6 +5,7 @@ import https from "https";
 import cron from "node-cron";
 import { sayHelloController } from "./controllers";
 import { errorHandler } from "./middlewares";
+import { userrouter } from "./routes/user";
 
 const app = express();
 
@@ -28,11 +29,9 @@ cron.schedule("*/5 * * * *", () => {
 });
 
 //serve all routes dynamically using readdirsync
-readdirSync("./src/routes").map((path) =>
-  app.use("/api", require(`./routes/${path}`))
-);
 
 app.get("/", sayHelloController);
+app.use("/api/user", userrouter);
 
 app.use(errorHandler);
 
