@@ -16,7 +16,8 @@ const signUpController = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email, fullName, password, referralCode }: bodyprops = req.body;
+  const { email, fullName, password, referralCode, phoneNumber }: bodyprops =
+    req.body;
 
   if (!fullName) {
     return res.status(400).json({ message: "Please enter your first name" });
@@ -26,6 +27,9 @@ const signUpController = async (
   }
   if (!password) {
     return res.status(400).json({ message: "Please enter your password" });
+  }
+  if (!phoneNumber) {
+    return res.status(400).json({ message: "Please enter your phone number" });
   }
 
   try {
@@ -47,6 +51,7 @@ const signUpController = async (
       user = await prisma.user.create({
         data: {
           fullName,
+          phoneNumber,
           email,
           password: hashedPassword,
           otp: otp.toString(),
@@ -69,6 +74,7 @@ const signUpController = async (
       user = await prisma.user.create({
         data: {
           fullName,
+          phoneNumber,
           email,
           password: hashedPassword,
           otp: otp.toString(),

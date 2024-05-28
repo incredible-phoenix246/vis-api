@@ -12,6 +12,7 @@ interface User {
   referredBy?: User;
   referrals: User[];
   referralsMade: Referral[];
+  phoneNumber: string;
 }
 
 interface Referral {
