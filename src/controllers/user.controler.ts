@@ -8,6 +8,8 @@ import {
 } from "../utils";
 import { User as bodyprops, Referral } from "../types";
 import { User } from "@prisma/client";
+import { compilerOtp } from "../complier";
+import { Sendmail } from "../utils/mailer";
 
 const signUpController = async (
   req: Request,
@@ -77,6 +79,13 @@ const signUpController = async (
     }
 
     const { password: _, ...rest } = user;
+
+    await Sendmail({
+      from: `VISCIO <support@viscio.com>`,
+      to: email,
+      subject: "OTP VERIFICATION",
+      html: compilerOtp(parseInt(otp)),
+    });
     res.status(201).json({ user: rest });
   } catch (error) {
     console.log(error);
@@ -84,4 +93,36 @@ const signUpController = async (
   }
 };
 
-export { signUpController };
+const VerifyOtp = async (req: Request, res: Response) => {
+  const { userId, otp } = req.body;
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    if (user.otp !== otp || user.otpExpires < new Date()) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        otp: null,
+        otpExpires: null,
+        verified: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully. Your account is now active.",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export { signUpController, VerifyOtp };

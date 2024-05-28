@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { signUpController } from "../controllers/user.controler";
+import { signUpController, VerifyOtp } from "../controllers/user.controler";
 
 const userrouter = Router();
 
 userrouter.post("/signup", signUpController);
+userrouter.post("/verify-otp", VerifyOtp);
 
 export { userrouter };

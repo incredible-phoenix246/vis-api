@@ -22,6 +22,7 @@ model User {
   referredBy    User?      @relation("UserReferredBy", fields: [referredById], references: [id])
   referrals     User[]     @relation("UserReferredBy")
   referralsMade Referral[]
+  verified      Boolean    @default(false)
 
   @@map("User")
 }
