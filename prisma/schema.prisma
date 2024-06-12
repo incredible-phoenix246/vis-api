@@ -93,6 +93,7 @@ model Order {
   deliveryAgentId String?
   bids            bids[]
   dispatched      Boolean  @default(false)
+  status          String?  @default("pending")
 
   @@map("Orders")
 }
