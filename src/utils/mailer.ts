@@ -1,4 +1,4 @@
-import nodemailer, { Transporter, SentMessageInfo } from "nodemailer";
+import nodemailer from "nodemailer";
 import { BadRequestError } from "../middlewares";
 
 const { SMTP_EMAIL, SMTP_PASSWORD } = process.env;

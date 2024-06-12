@@ -1,5 +1,4 @@
 import express from "express";
-import { readdirSync } from "fs";
 import cors from "cors";
 import https from "https";
 import cron from "node-cron";
@@ -22,13 +21,10 @@ function keepAlive(url: string) {
     });
 }
 
-// cron job to ping the server every minute and delete expired tokens every 5 minutes
 cron.schedule("*/5 * * * *", () => {
-  keepAlive("https://traverse-pgpw.onrender.com/");
+  keepAlive("");
   console.log("pinging the server every minute");
 });
-
-//serve all routes dynamically using readdirsync
 
 app.get("/", sayHelloController);
 app.use("/api/user", userrouter);
