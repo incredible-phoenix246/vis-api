@@ -74,7 +74,7 @@ model Message {
 }
 
 model Order {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   pickupname      String
   pickupaddress   String
   pickupphone     String
@@ -86,14 +86,16 @@ model Order {
   dropoffaddress  String
   dropoffphone    String
   deliverytype    String
-  insurance       Boolean  @default(false)
-  owner           User     @relation("OrdersOwned", fields: [userId], references: [id])
+  insurance       Boolean   @default(false)
+  owner           User      @relation("OrdersOwned", fields: [userId], references: [id])
   userId          String
-  deliveryAgent   User?    @relation("OrdersDelivered", fields: [deliveryAgentId], references: [id])
+  deliveryAgent   User?     @relation("OrdersDelivered", fields: [deliveryAgentId], references: [id])
   deliveryAgentId String?
   bids            bids[]
-  dispatched      Boolean  @default(false)
-  status          String?  @default("pending")
+  dispatched      Boolean   @default(false)
+  status          String?   @default("pending")
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@map("Orders")
 }
