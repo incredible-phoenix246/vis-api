@@ -33,6 +33,8 @@ model User {
   bids                    bids[]
   deliveries              Order[]        @relation("OrdersDelivered")
   RefreshToken            RefreshToken[]
+  cacNumber               String?
+  nin                     String?
 
   @@map("User")
 }
@@ -90,6 +92,7 @@ model Order {
   deliveryAgent   User?    @relation("OrdersDelivered", fields: [deliveryAgentId], references: [id])
   deliveryAgentId String?
   bids            bids[]
+  dispatched      Boolean  @default(false)
 
   @@map("Orders")
 }
