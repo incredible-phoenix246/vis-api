@@ -1,15 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import prisma from "../utils/prisma";
 import bcrypt from "bcryptjs";
-import {
-  generateNumericOTP,
-  capitalizeFirstLetter,
-  getFirstName,
-} from "../utils";
+import { generateNumericOTP } from "../utils";
 import { User as bodyprops, Referral } from "../types";
 import { User } from "@prisma/client";
 import { compilerOtp } from "../complier";
 import { Sendmail } from "../utils/mailer";
+import jwt from "jsonwebtoken";
 
 const signUpController = async (
   req: Request,
@@ -33,10 +30,12 @@ const signUpController = async (
   }
 
   try {
-    const existinguser = await prisma.user.findUnique({
-      where: { email },
-    });
-    if (existinguser) {
+    const [existingUserByEmail, existingUserByPhone] = await Promise.all([
+      prisma.user.findUnique({ where: { email } }),
+      prisma.user.findUnique({ where: { phoneNumber } }),
+    ]);
+
+    if (existingUserByEmail || existingUserByPhone) {
       return res.status(400).json({ message: "User already exists" });
     }
 
@@ -131,4 +130,35 @@ const VerifyOtp = async (req: Request, res: Response) => {
   }
 };
 
-export { signUpController, VerifyOtp };
+interface LoginProps {
+  email: string;
+  password: string;
+}
+
+const Login = async (req: Request, res: Response) => {
+  const { email, password }: LoginProps = req.body;
+  try {
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    const { password: _, ...rest } = user;
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: rest,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+export { signUpController, VerifyOtp, Login };
