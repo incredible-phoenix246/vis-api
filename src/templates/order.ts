@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+export const Order = `<!DOCTYPE html>
 <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
 
 <head>
@@ -196,7 +196,7 @@
 														<tr>
 															<td class="pad" style="padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:20px;">
 																<div style="color:#555555;font-family:Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;font-size:43px;line-height:120%;text-align:center;mso-line-height-alt:51.6px;">
-																	<p style="margin: 0; word-break: break-word;"><span style="color: #003188;"><strong>Order Placed Successfully?</strong></span></p>
+																	<p style="margin: 0; word-break: break-word;"><span style="color: #003188;"><strong>Order Placed Successfully</strong></span></p>
 																</div>
 															</td>
 														</tr>
@@ -234,7 +234,7 @@
 															<td class="pad" style="padding-bottom:10px;padding-left:40px;padding-right:40px;padding-top:10px;">
 																<div style="font-family: sans-serif">
 																	<div class style="font-size: 12px; font-family: Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif; mso-line-height-alt: 18px; color: #555555; line-height: 1.5;">
-																		<p style="margin: 0; text-align: center; mso-line-height-alt: 24px;"><span style="font-size:16px;"><span style="color:#fb5f3d;"><strong>1 –</strong></span> <span style="color:#6d89bc;">Here is your tracking id {{tracking_id}}</span></span></p>
+																		<p style="margin: 0; text-align: center; mso-line-height-alt: 24px;"><span style="font-size:16px;"><span style="color:#fb5f3d;"><strong>1 –</strong></span> <span style="color:#6d89bc;">Here is your tracking id: {{tracking_id}}</span></span></p>
 																		<p style="margin: 0; text-align: center; mso-line-height-alt: 24px;"><span style="font-size:16px;"><span style="color:#fb5f3d;"><strong>2 –</strong></span> <span style="color:#6d89bc;">Click on the link bellow to track your order 👇👇</span></span></p>
 																	</div>
 																</div>
@@ -372,4 +372,4 @@
 	</table><!-- End -->
 </body>
 
-</html>
+</html>`;

@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import prisma from "../utils/prisma";
 import { Order, Bid } from "../types";
 import { getUserIdFromToken } from "../utils";
+import { compilerOrder } from "../complier";
+import { Sendmail } from "../utils/mailer";
 
 const createOrder = async (req: Request, res: Response) => {
   try {
@@ -46,6 +48,19 @@ const createOrder = async (req: Request, res: Response) => {
         insurance: insurance ? insurance : false,
         userId,
       },
+    });
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    await Sendmail({
+      from: `VISCIO <support@viscio.com>`,
+      to: user.email,
+      subject: "OTP VERIFICATION",
+      html: compilerOrder(newOrder.id),
     });
 
     return res.status(201).json({
