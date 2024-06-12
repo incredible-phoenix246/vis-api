@@ -1,25 +1,85 @@
-interface User {
-  id: number;
+export interface User {
+  id: string;
   fullName: string;
   email: string;
+  phoneNumber: string;
   otp?: string;
   otpExpires?: Date;
-  createdAt: Date;
+  createdAt?: Date;
   updatedAt: Date;
   password?: string;
-  referralCode: string;
-  referredById?: number;
+  referralCode?: string;
+  referredById?: string;
   referredBy?: User;
   referrals: User[];
   referralsMade: Referral[];
-  phoneNumber: string;
+  verified: boolean;
+  accountType: string;
+  sentMessages: Message[];
+  receivedMessages: Message[];
+  conversationsAsSender: Conversation[];
+  conversationsAsReceiver: Conversation[];
+  orders: Order[];
+  bids: Bid[];
+  deliveries: Order[];
 }
 
-interface Referral {
+export interface Referral {
   id: number;
   code: string;
-  userId: number;
+  userId: string;
   user: User;
 }
 
-export { Referral, User };
+export interface Conversation {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  messages: Message[];
+  sender: User;
+  receiver: User;
+}
+
+export interface Message {
+  id: number;
+  content: string;
+  createdAt: Date;
+  senderId: string;
+  receiverId: string;
+  conversationId: string;
+  conversation: Conversation;
+  sender: User;
+  receiver: User;
+}
+
+export interface Order {
+  id: string;
+  pickupname: string;
+  pickupaddress: string;
+  pickupphone: string;
+  pickupitem: string[] | string;
+  weight?: string;
+  deliverymode: string;
+  note?: string;
+  dropoffname: string;
+  dropoffaddress: string;
+  dropoffphone: string;
+  deliverytype: string;
+  insurance: boolean;
+  owner: User;
+  userId: string;
+  deliveryAgent?: User;
+  deliveryAgentId?: string;
+  bids: Bid[];
+}
+
+export interface Bid {
+  id: number;
+  bidder: User;
+  userId: string;
+  order: Order;
+  orderId: string;
+  accepted?: boolean;
+  price: string;
+  deliveryhour: string;
+}

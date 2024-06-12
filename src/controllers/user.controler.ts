@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import prisma from "../utils/prisma";
 import bcrypt from "bcryptjs";
-import { generateNumericOTP } from "../utils";
-import { User as bodyprops, Referral } from "../types";
+import { generateNumericOTP, getUserIdFromToken } from "../utils";
+import { User as bodyprops } from "../types";
 import { User } from "@prisma/client";
 import { compilerOtp } from "../complier";
 import { Sendmail } from "../utils/mailer";
@@ -130,13 +130,8 @@ const VerifyOtp = async (req: Request, res: Response) => {
   }
 };
 
-interface LoginProps {
-  email: string;
-  password: string;
-}
-
 const Login = async (req: Request, res: Response) => {
-  const { email, password }: LoginProps = req.body;
+  const { email, password }: bodyprops = req.body;
   try {
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
@@ -147,8 +142,16 @@ const Login = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1d",
     });
+
+    await prisma.refreshToken.create({
+      data: {
+        token: token,
+        userId: user.id,
+      },
+    });
+
     const { password: _, ...rest } = user;
     return res.status(200).json({
       success: true,
@@ -161,4 +164,38 @@ const Login = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
-export { signUpController, VerifyOtp, Login };
+
+const RefreshToken = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const token = authHeader.split(" ")[1];
+    const userId = getUserIdFromToken(authHeader);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+    const storedToken = await prisma.refreshToken.findUnique({
+      where: { token },
+    });
+
+    if (!storedToken) {
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    }
+
+    const newAccessToken = jwt.sign({ userId }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    return res.status(200).json({
+      success: true,
+      token: newAccessToken,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export { signUpController, VerifyOtp, Login, RefreshToken };

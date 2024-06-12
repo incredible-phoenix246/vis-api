@@ -1,4 +1,4 @@
-import prisma from "./prisma";
+import jwt from "jsonwebtoken";
 
 const generateNumericOTP = (length: number): string => {
   let otp = "";
@@ -27,9 +27,31 @@ const generateReferralCode = (email: string): string => {
   return Buffer.from(email).toString("base64").slice(0, 8);
 };
 
+/**
+ * Extracts the user ID from the provided JWT token.
+ * @param {string} token - The JWT token containing the user ID
+ * @returns {string | null} - The user ID if found, otherwise null
+ */
+const getUserIdFromToken = (token: string): string | null => {
+  if (!token || !token.startsWith("Bearer ")) {
+    console.error("Invalid token format");
+    return null;
+  }
+
+  const jwtToken = token.split(" ")[1];
+  try {
+    const decoded: any = jwt.verify(jwtToken, process.env.JWT_SECRET);
+    return decoded.userId;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
+
 export {
   generateReferralCode,
   generateNumericOTP,
   capitalizeFirstLetter,
   getFirstName,
+  getUserIdFromToken,
 };

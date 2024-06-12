@@ -29,7 +29,10 @@ model User {
   receivedMessages        Message[]      @relation("ReceivedMessages")
   conversationsAsSender   Conversation[] @relation("SenderConversations")
   conversationsAsReceiver Conversation[] @relation("ReceiverConversations")
-  Order                   Order[]
+  orders                  Order[]        @relation("OrdersOwned")
+  bids                    bids[]
+  deliveries              Order[]        @relation("OrdersDelivered")
+  RefreshToken            RefreshToken[]
 
   @@map("User")
 }
@@ -69,19 +72,44 @@ model Message {
 }
 
 model Order {
-  id             String  @id @default(cuid())
-  pickupname     String
-  pickupaddress  String
-  pickupphone    String
-  pickupitem     String
-  weight         String?
-  deliverymode   String
-  note           String?
-  dropoffname    String
-  dropoffaddress String
-  dropoffphone   String
-  deliverytype   String
-  insurance      Boolean @default(false)
-  owner          User    @relation(fields: [userId], references: [id])
-  userId         String
+  id              String   @id @default(cuid())
+  pickupname      String
+  pickupaddress   String
+  pickupphone     String
+  pickupitem      String[]
+  weight          String?
+  deliverymode    String
+  note            String?
+  dropoffname     String
+  dropoffaddress  String
+  dropoffphone    String
+  deliverytype    String
+  insurance       Boolean  @default(false)
+  owner           User     @relation("OrdersOwned", fields: [userId], references: [id])
+  userId          String
+  deliveryAgent   User?    @relation("OrdersDelivered", fields: [deliveryAgentId], references: [id])
+  deliveryAgentId String?
+  bids            bids[]
+
+  @@map("Orders")
+}
+
+model bids {
+  id           Int      @id @default(autoincrement())
+  bidder       User     @relation(fields: [userId], references: [id])
+  userId       String
+  order        Order    @relation(fields: [orderId], references: [id])
+  orderId      String
+  accepted     Boolean? @default(false)
+  price        String
+  deliveryhour String
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
 }
