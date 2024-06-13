@@ -35,6 +35,7 @@ model User {
   RefreshToken            RefreshToken[]
   cacNumber               String?
   nin                     String?
+  Notification            Notification[]
 
   @@map("User")
 }
@@ -119,4 +120,18 @@ model RefreshToken {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  from      String
+  avatar    String
+  type      String
+  item      Json
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@map("Notification")
 }

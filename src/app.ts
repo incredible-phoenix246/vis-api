@@ -6,6 +6,7 @@ import { sayHelloController } from "./controllers";
 import { errorHandler } from "./middlewares";
 import { userrouter } from "./routes/user";
 import { orderRouter } from "./routes/order";
+import { notRoute } from "./routes/notification";
 
 const app = express();
 
@@ -30,6 +31,7 @@ cron.schedule("*/5 * * * *", () => {
 app.get("/", sayHelloController);
 app.use("/api/user", userrouter);
 app.use("/api/order", orderRouter);
+app.use("/api", notRoute);
 
 app.use(errorHandler);
 

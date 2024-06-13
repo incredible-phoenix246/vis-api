@@ -84,3 +84,15 @@ export interface Bid {
   price: string;
   deliveryhour: string;
 }
+
+export interface Notification {
+  from: string;
+  avatar: string;
+  type: string;
+  item: {
+    type: string;
+    body: string;
+  };
+  read?: boolean;
+  userId: string;
+}
