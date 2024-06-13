@@ -87,6 +87,7 @@ model Order {
   dropoffphone    String
   deliverytype    String
   insurance       Boolean   @default(false)
+  itemvalue       String?
   owner           User      @relation("OrdersOwned", fields: [userId], references: [id])
   userId          String
   deliveryAgent   User?     @relation("OrdersDelivered", fields: [deliveryAgentId], references: [id])

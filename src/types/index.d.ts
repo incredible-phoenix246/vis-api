@@ -71,6 +71,7 @@ export interface Order {
   deliveryAgent?: User;
   deliveryAgentId?: string;
   bids: Bid[];
+  itemvalue?: string;
 }
 
 export interface Bid {

@@ -30,6 +30,7 @@ const createOrder = async (req: Request, res: Response) => {
       note,
       weight,
       insurance,
+      itemvalue,
     }: Order = req.body;
 
     const newOrder = await prisma.order.create({
@@ -47,6 +48,7 @@ const createOrder = async (req: Request, res: Response) => {
         weight: weight ? weight : "",
         insurance: insurance ? insurance : false,
         userId,
+        itemvalue: itemvalue ? itemvalue : "",
       },
     });
 
