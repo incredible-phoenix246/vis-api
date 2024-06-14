@@ -4,6 +4,7 @@ import { Order, Bid } from "../types";
 import { getUserIdFromToken } from "../utils";
 import { compilerOrder } from "../complier";
 import { Sendmail } from "../utils/mailer";
+import { CreateNotification } from "../utils/notification";
 
 const createOrder = async (req: Request, res: Response) => {
   try {
@@ -12,10 +13,14 @@ const createOrder = async (req: Request, res: Response) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
+    console.log("pass 1");
+
     const userId = getUserIdFromToken(authHeader);
     if (!userId) {
       res.status(401).json({ error: "Unauthorized" });
     }
+
+    console.log("pass 2");
 
     const {
       pickupname,
@@ -52,18 +57,66 @@ const createOrder = async (req: Request, res: Response) => {
       },
     });
 
+    console.log("pass 3");
+
     const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },
     });
 
-    await Sendmail({
-      from: `VISCIO <support@viscio.com>`,
-      to: user.email,
-      subject: "OTP VERIFICATION",
-      html: compilerOrder(newOrder.id),
+    console.log("pass 4");
+
+    try {
+      await Sendmail({
+        from: `VISCIO <support@viscio.com>`,
+        to: user.email,
+        subject: "Order Created Successfully",
+        html: compilerOrder(newOrder.id),
+      });
+    } catch (emailError) {
+      console.error("Failed to send email:", emailError);
+    }
+
+    console.log("pass 5");
+
+    await CreateNotification({
+      from: "VISCIO System",
+      avatar: "/main.png",
+      type: "order",
+      item: {
+        type: "order",
+        body: `Your order with ID ${newOrder.id} has been created.`,
+      },
+      userId: userId,
     });
+
+    console.log("pass 6");
+
+    const operators = await prisma.user.findMany({
+      where: {
+        accountType: {
+          not: "user",
+        },
+      },
+    });
+
+    console.log("pass 7");
+
+    for (const operator of operators) {
+      await CreateNotification({
+        from: "VISCIO System",
+        avatar: "/main.png",
+        type: "order",
+        item: {
+          type: "order",
+          body: `A new order with ID ${newOrder.id} has been created.`,
+        },
+        userId: operator.id,
+      });
+    }
+
+    console.log("pass 8");
 
     return res.status(201).json({
       message: "Order has been created successfully",
@@ -254,6 +307,27 @@ const getBidsbyId = async (req: Request, res: Response) => {
   }
 };
 
+const getAllOrders = async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    const orders = await prisma.order.findMany({
+      include: {
+        bids: true,
+      },
+    });
+    return res.status(200).json({
+      message: "orders",
+      orders: orders,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 export {
   createOrder,
   getOrders,
@@ -261,4 +335,5 @@ export {
   getBids,
   getBidsbyId,
   getOrderbyId,
+  getAllOrders,
 };

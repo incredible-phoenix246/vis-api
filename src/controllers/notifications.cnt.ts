@@ -28,6 +28,10 @@ const alllNotifications = async (req: Request, res: Response) => {
 };
 
 const markNotificationasread = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).json({ message: "Id is needed" });
+  }
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -37,7 +41,7 @@ const markNotificationasread = async (req: Request, res: Response) => {
     if (!userId) {
       res.status(401).json({ error: "Unauthorized" });
     }
-    const { id } = req.params;
+
     const notification = await prisma.notification.update({
       where: {
         id: Number(id),
@@ -55,4 +59,4 @@ const markNotificationasread = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-export { alllNotifications };
+export { alllNotifications, markNotificationasread };
