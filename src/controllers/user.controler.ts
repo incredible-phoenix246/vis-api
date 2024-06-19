@@ -115,7 +115,7 @@ const VerifyOtp = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-   const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         otp: null,
@@ -127,7 +127,7 @@ const VerifyOtp = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: "OTP verified successfully. Your account is now active.",
-      user: updatedUser
+      user: updatedUser,
     });
   } catch (error) {
     return res.status(500).json({ message: "Something went wrong" });
@@ -207,7 +207,14 @@ const RefreshToken = async (req: Request, res: Response) => {
 };
 
 const verifyOperator = async (req: Request, res: Response) => {
-  const { id: userId, ninNumber, cacNumber }: bodyprops = req.body;
+  const {
+    id: userId,
+    ninNumber,
+    cacNumber,
+    mobilityType,
+    driversLicense,
+    vechLicense,
+  }: bodyprops = req.body;
 
   if (!userId) {
     return res.status(400).json({ message: "Invalid user" });
@@ -229,12 +236,15 @@ const verifyOperator = async (req: Request, res: Response) => {
       data: {
         ninNumber,
         cacNumber,
+        mobilityType,
+        driversLicense,
+        vechLicense,
       },
     });
 
     return res.status(200).json({
       success: true,
-      message: "Verification successful",
+      message: "your account will be verified in 3 working days",
     });
   } catch (error) {
     console.error("Login error:", error);
@@ -372,5 +382,5 @@ export {
   verifyOperator,
   getAllOperators,
   AdminVerifyOperatorbyid,
-  getAllusers
+  getAllusers,
 };

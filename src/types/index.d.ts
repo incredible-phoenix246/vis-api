@@ -12,6 +12,9 @@ export interface User {
   password?: string;
   referralCode?: string;
   referredById?: string;
+  mobilityType: string;
+  driversLicense: string;
+  vechLicense: string;
   referredBy?: User;
   referrals: User[];
   referralsMade: Referral[];
