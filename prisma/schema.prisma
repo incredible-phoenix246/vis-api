@@ -34,8 +34,9 @@ model User {
   deliveries              Order[]        @relation("OrdersDelivered")
   RefreshToken            RefreshToken[]
   cacNumber               String?
-  nin                     String?
+  ninNumber               String?
   Notification            Notification[]
+  isOperatorverified      Boolean?       @default(false)
 
   @@map("User")
 }

@@ -7,6 +7,8 @@ export interface User {
   otpExpires?: Date;
   createdAt?: Date;
   updatedAt: Date;
+  cacNumber: string;
+  ninNumber: string;
   password?: string;
   referralCode?: string;
   referredById?: string;

@@ -8,13 +8,15 @@ import { compilerOtp } from "../complier";
 import { Sendmail } from "../utils/mailer";
 import jwt from "jsonwebtoken";
 
-const signUpController = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  const { email, fullName, password, referralCode, phoneNumber }: bodyprops =
-    req.body;
+const signUpController = async (req: Request, res: Response) => {
+  const {
+    email,
+    fullName,
+    password,
+    referralCode,
+    phoneNumber,
+    accountType,
+  }: bodyprops = req.body;
 
   if (!fullName) {
     return res.status(400).json({ message: "Please enter your first name" });
@@ -55,6 +57,7 @@ const signUpController = async (
           password: hashedPassword,
           otp: otp.toString(),
           otpExpires,
+          accountType: accountType ? accountType : "user",
         },
       });
     }
@@ -202,4 +205,171 @@ const RefreshToken = async (req: Request, res: Response) => {
   }
 };
 
-export { signUpController, VerifyOtp, Login, RefreshToken };
+const verifyOperator = async (req: Request, res: Response) => {
+  const { id: userId, ninNumber, cacNumber }: bodyprops = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ message: "Invalid user" });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    if (user.accountType !== "operator") {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        ninNumber,
+        cacNumber,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Verification successful",
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+const getAllOperators = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const token = authHeader.split(" ")[1];
+    const userId = getUserIdFromToken(authHeader);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const u = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!u) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+    if (u.accountType !== "admin") {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    const operators = await prisma.user.findMany({
+      where: {
+        accountType: "operator",
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      operators,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+const AdminVerifyOperatorbyid = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const { id } = req.params;
+  try {
+    const userId = getUserIdFromToken(authHeader);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const u = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!u) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+    if (u.accountType !== "admin") {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    const operator = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+    if (!operator) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+    await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        isOperatorverified: true,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+const getAllusers = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const userId = getUserIdFromToken(authHeader);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const u = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!u) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+    if (u.accountType !== "admin") {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+
+    const users = await prisma.user.findMany();
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+export {
+  signUpController,
+  VerifyOtp,
+  Login,
+  RefreshToken,
+  verifyOperator,
+  getAllOperators,
+  AdminVerifyOperatorbyid,
+  getAllusers
+};
