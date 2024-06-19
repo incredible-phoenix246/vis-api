@@ -115,7 +115,7 @@ const VerifyOtp = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    await prisma.user.update({
+   const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         otp: null,
@@ -127,6 +127,7 @@ const VerifyOtp = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: "OTP verified successfully. Your account is now active.",
+      user: updatedUser
     });
   } catch (error) {
     return res.status(500).json({ message: "Something went wrong" });
