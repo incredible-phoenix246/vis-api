@@ -239,7 +239,7 @@ const verifyOperator = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid user" });
     }
 
-    let verified = false;
+    let verified = true;
 
     if (cacNumber !== undefined) {
       const response = await fetch('https://searchapp.cac.gov.ng/searchapp/api/public/public-search/company-business-name-it', {
@@ -277,6 +277,7 @@ const verifyOperator = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: verified ? "Your account has been verified" : "Your account will be verified in 3 working days",
+      user: user
     });
   } catch (error) {
     console.error("Verification error:", error);
