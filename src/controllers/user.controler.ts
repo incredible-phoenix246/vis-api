@@ -208,7 +208,7 @@ const RefreshToken = async (req: Request, res: Response) => {
 
 const verifyOperator = async (req: Request, res: Response) => {
   const {
-    id: userId,
+
     ninNumber,
     cacNumber,
     mobilityType,
@@ -217,11 +217,18 @@ const verifyOperator = async (req: Request, res: Response) => {
     document,
   }: bodyprops = req.body;
 
-  if (!userId) {
-    return res.status(400).json({ message: "Invalid user" });
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
 
   try {
+
+    const userId = getUserIdFromToken(authHeader);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
@@ -232,26 +239,47 @@ const verifyOperator = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Invalid user" });
     }
 
+    let verified = false;
+
+    if (cacNumber !== undefined) {
+      const response = await fetch('https://searchapp.cac.gov.ng/searchapp/api/public/public-search/company-business-name-it', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ searchTerm: cacNumber })
+      });
+
+      const data = await response.json();
+
+      if (data.status === 'OK' && data.success) {
+        const company = data.data.data.find((company: any) => company.rcNumber === cacNumber);
+
+        if (company && company.status === 'ACTIVE') {
+          verified = true;
+        }
+      }
+    }
+
     await prisma.user.update({
       where: { id: userId },
       data: {
-        ninNumber: ninNumber ? ninNumber : "",
-        cacNumber: cacNumber ? cacNumber : "",
-        mobilityType: Array.isArray(mobilityType)
-          ? mobilityType
-          : [mobilityType],
+        ninNumber: ninNumber || "",
+        cacNumber: cacNumber || "",
+        mobilityType: Array.isArray(mobilityType) ? mobilityType : [mobilityType],
         driversLicense,
         vechLicense,
         document: Array.isArray(document) ? document : [document],
+        isOperatorverified: verified
       },
     });
 
     return res.status(200).json({
       success: true,
-      message: "your account will be verified in 3 working days",
+      message: verified ? "Your account has been verified" : "Your account will be verified in 3 working days",
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Verification error:", error);
     return res.status(500).json({ message: "Something went wrong" });
   }
 };
