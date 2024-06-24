@@ -12,7 +12,7 @@ export interface User {
   password?: string;
   referralCode?: string;
   referredById?: string;
-  mobilityType: string;
+  mobilityType: string[];
   driversLicense: string;
   vechLicense: string;
   referredBy?: User;
@@ -27,6 +27,7 @@ export interface User {
   orders: Order[];
   bids: Bid[];
   deliveries: Order[];
+  document: string[];
 }
 
 export interface Referral {

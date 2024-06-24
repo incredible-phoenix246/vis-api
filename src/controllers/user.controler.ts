@@ -214,6 +214,7 @@ const verifyOperator = async (req: Request, res: Response) => {
     mobilityType,
     driversLicense,
     vechLicense,
+    document,
   }: bodyprops = req.body;
 
   if (!userId) {
@@ -234,11 +235,14 @@ const verifyOperator = async (req: Request, res: Response) => {
     await prisma.user.update({
       where: { id: userId },
       data: {
-        ninNumber,
-        cacNumber,
-        mobilityType,
+        ninNumber: ninNumber ? ninNumber : "",
+        cacNumber: cacNumber ? cacNumber : "",
+        mobilityType: Array.isArray(mobilityType)
+          ? mobilityType
+          : [mobilityType],
         driversLicense,
         vechLicense,
+        document: Array.isArray(document) ? document : [document],
       },
     });
 
@@ -258,7 +262,6 @@ const getAllOperators = async (req: Request, res: Response) => {
     return res.status(401).json({ error: "Unauthorized" });
   }
   try {
-    const token = authHeader.split(" ")[1];
     const userId = getUserIdFromToken(authHeader);
     if (!userId) {
       res.status(401).json({ error: "Unauthorized" });

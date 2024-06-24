@@ -37,9 +37,10 @@ model User {
   ninNumber               String?
   Notification            Notification[]
   isOperatorverified      Boolean?       @default(false)
-  mobilityType            String?
+  mobilityType            String[]
   driversLicense          String?
   vechLicense             String?
+  document                String[]
 
   @@map("User")
 }
