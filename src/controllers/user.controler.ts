@@ -261,7 +261,7 @@ const verifyOperator = async (req: Request, res: Response) => {
     //   }
     // }
 
-    await prisma.user.update({
+    const UpdatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
         ninNumber: ninNumber || "",
@@ -270,14 +270,14 @@ const verifyOperator = async (req: Request, res: Response) => {
         driversLicense,
         vechLicense,
         document: Array.isArray(document) ? document : [document],
-        isOperatorverified: verified
+        isOperatorverified: true
       },
     });
 
     return res.status(200).json({
       success: true,
       message: verified ? "Your account has been verified" : "Your account will be verified in 3 working days",
-      user: user
+      user: UpdatedUser
     });
   } catch (error) {
     console.error("Verification error:", error);
