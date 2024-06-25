@@ -241,25 +241,25 @@ const verifyOperator = async (req: Request, res: Response) => {
 
     let verified = true;
 
-    if (cacNumber !== undefined) {
-      const response = await fetch('https://searchapp.cac.gov.ng/searchapp/api/public/public-search/company-business-name-it', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ searchTerm: cacNumber })
-      });
+    // if (cacNumber !== undefined) {
+    //   const response = await fetch('https://searchapp.cac.gov.ng/searchapp/api/public/public-search/company-business-name-it', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify({ searchTerm: cacNumber })
+    //   });
 
-      const data = await response.json();
+    //   const data = await response.json();
 
-      if (data.status === 'OK' && data.success) {
-        const company = data.data.data.find((company: any) => company.rcNumber === cacNumber);
+    //   if (data.status === 'OK' && data.success) {
+    //     const company = data.data.data.find((company: any) => company.rcNumber === cacNumber);
 
-        if (company && company.status === 'ACTIVE') {
-          verified = true;
-        }
-      }
-    }
+    //     if (company && company.status === 'ACTIVE') {
+    //       verified = true;
+    //     }
+    //   }
+    // }
 
     await prisma.user.update({
       where: { id: userId },
