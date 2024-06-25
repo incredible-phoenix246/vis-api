@@ -26,6 +26,6 @@ userrouter.post(
   AdminVerifyOperatorbyid
 );
 userrouter.get("/get-all-users", verifyToken, getAllusers);
-userrouter.get("get-me", verifyToken, getMe)
+userrouter.get("/get-me", verifyToken, getMe)
 
 export { userrouter };
