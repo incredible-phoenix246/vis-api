@@ -406,6 +406,35 @@ const getAllusers = async (req: Request, res: Response) => {
   }
 };
 
+const getMe = async (req: Request, res: Response) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  try {
+    const userId = getUserIdFromToken(authHeader);
+    if (!userId) {
+      res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid user" });
+    }
+    return res.status(200).json({
+      success: true,
+      user,
+    });
+
+  } catch (error) {
+    console.error("Login error:", error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
 export {
   signUpController,
   VerifyOtp,
@@ -415,4 +444,5 @@ export {
   getAllOperators,
   AdminVerifyOperatorbyid,
   getAllusers,
+  getMe
 };

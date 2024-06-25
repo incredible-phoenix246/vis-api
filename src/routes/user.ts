@@ -8,6 +8,7 @@ import {
   getAllOperators,
   AdminVerifyOperatorbyid,
   getAllusers,
+  getMe
 } from "../controllers/user.controler";
 import verifyToken from '../middlewares/auth';
 
@@ -25,5 +26,6 @@ userrouter.post(
   AdminVerifyOperatorbyid
 );
 userrouter.get("/get-all-users", verifyToken, getAllusers);
+userrouter.get("get-me", verifyToken, getMe)
 
 export { userrouter };
