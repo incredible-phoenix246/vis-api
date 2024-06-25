@@ -13,6 +13,18 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+const allowedOrigins = ["http://localhost:3000", "https://viscio.vercel.app"];
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+}));
+
 function keepAlive(url: string) {
   https
     .get(url, (res) => {
@@ -25,7 +37,7 @@ function keepAlive(url: string) {
 
 cron.schedule("*/5 * * * *", () => {
   keepAlive("");
-  console.log("pinging the server every minute");
+  console.log("Pinging the server every 5 minutes");
 });
 
 app.get("/", sayHelloController);
@@ -35,7 +47,6 @@ app.use("/api", notRoute);
 
 app.use(errorHandler);
 
-app.use(cors());
 const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
