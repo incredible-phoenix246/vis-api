@@ -197,7 +197,18 @@ const createBid = async (req: Request, res: Response) => {
         deliveryhour,
         orderId,
         userId,
+        status: "pending",
       },
+    });
+    await CreateNotification({
+      from: "VISCIO System",
+      avatar: "/main.png",
+      type: "bid",
+      item: {
+        type: "bid placement",
+        body: `Your order with ID ${orderId} has been bided for.`,
+      },
+      userId: userId,
     });
     return res.status(201).json({
       message: "Bid has been placed successfully",
@@ -256,7 +267,11 @@ const getOrderbyId = async (req: Request, res: Response) => {
         id,
       },
       include: {
-        bids: true,
+        bids: {
+          include: {
+            bidder: true,
+          }
+        }
       },
     });
     if (!order) {

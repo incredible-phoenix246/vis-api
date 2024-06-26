@@ -116,6 +116,7 @@ model bids {
   accepted     Boolean? @default(false)
   price        String
   deliveryhour String
+  status       String
 }
 
 model RefreshToken {
