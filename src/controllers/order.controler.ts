@@ -253,6 +253,7 @@ const getOrderbyId = async (req: Request, res: Response) => {
   if (!id) {
     return res.status(400).json({ message: "Id is needed" });
   }
+  
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
